@@ -9,7 +9,14 @@ export class PostCreateComponent implements OnInit {
 
   constructor() { }
 
+  newPost = 'Dummy data';
+
+
   ngOnInit() {
+  }
+
+  onAddPost() {
+
   }
 
 }
