@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-post-create',
@@ -9,14 +10,17 @@ export class PostCreateComponent implements OnInit {
 
   constructor() { }
 
-  newPost = 'Dummy data';
+  newPost1 = '';
+  newPost2 = '';
+  value2 = '';
 
 
   ngOnInit() {
   }
 
-  onAddPost() {
-
+  onAddPost(value1: HTMLTextAreaElement) {
+    this.newPost1 = value1.value;
+    this.newPost2 = this.value2;
   }
 
 }
