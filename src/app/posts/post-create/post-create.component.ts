@@ -10,17 +10,14 @@ export class PostCreateComponent implements OnInit {
 
   constructor() { }
 
-  newPost1 = '';
-  newPost2 = '';
-  value2 = '';
+ newValue = '';
 
 
   ngOnInit() {
   }
 
   onAddPost(value1: HTMLTextAreaElement) {
-    this.newPost1 = value1.value;
-    this.newPost2 = this.value2;
+    this.newPost = this.newValue;
   }
 
 }
