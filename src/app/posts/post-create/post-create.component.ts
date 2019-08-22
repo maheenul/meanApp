@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -10,14 +10,21 @@ export class PostCreateComponent implements OnInit {
 
   constructor() { }
 
- newValue = '';
+ newTitle = '';
+ newPost = '';
+ posts = [];
+ @Output() postCreated = new EventEmitter();
 
 
   ngOnInit() {
   }
 
-  onAddPost(value1: HTMLTextAreaElement) {
-    this.newPost = this.newValue;
+  onAddPost() {
+    const post = {
+      title: this.newTitle,
+      post: this.newPost
+    };
+    this.postCreated.emit(post);
   }
 
 }
