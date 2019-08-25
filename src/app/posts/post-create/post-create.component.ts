@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit} from '@angular/core';
+import { FormsModule, NgForm } from '@angular/forms';
+import { PostsService } from '../post.service';
 
 @Component({
   selector: 'app-post-create',
@@ -8,16 +9,22 @@ import { FormsModule } from '@angular/forms';
 })
 export class PostCreateComponent implements OnInit {
 
-  constructor() { }
+  constructor(public postsService: PostsService) { }
 
- newValue = '';
+ newTitle = '';
+ newPost = '';
 
 
   ngOnInit() {
   }
 
-  onAddPost(value1: HTMLTextAreaElement) {
-    this.newPost = this.newValue;
+  onAddPost(form: NgForm) {
+    if(form.invalid){
+      return;
+    }else{
+      this.postsService.addPost(form.value.newTitle,form.value.newPost);
+      // clears the previous inputs
+      form.reset;
+    }
   }
-
 }
