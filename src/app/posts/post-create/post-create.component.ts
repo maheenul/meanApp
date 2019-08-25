@@ -22,7 +22,9 @@ export class PostCreateComponent implements OnInit {
     if(form.invalid){
       return;
     }else{
-      this.postsService.addPost(form.value.newTitle,form.value.newPost)
+      this.postsService.addPost(form.value.newTitle,form.value.newPost);
+      // clears the previous inputs
+      form.reset;
     }
   }
 }
