@@ -1,8 +1,10 @@
 const http = require('http');
+const app = require('./backend/app');
 
-// see ES6 conventions
-const server = http.createServer((req,res)=>{
-  res.end('This is my first response')
-});
+const port = process.env.PORT || 3000;
 
-server.listen(process.env.PORT || 3000);
+// Passing routing to express
+app.set('port', port);
+const server = http.createServer(app);
+
+server.listen(port);
