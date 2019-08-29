@@ -24,7 +24,7 @@ export class PostCreateComponent implements OnInit {
     }else{
       this.postsService.addPost(form.value.newTitle,form.value.newPost);
       // clears the previous inputs
-      form.reset;
+      form.resetForm();
     }
   }
 }
