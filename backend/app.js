@@ -7,8 +7,16 @@ app.use((req,res,next)=>{
   next();
 });
 
-app.use((req,res,next)=>{
-  res.send('hello');
+app.use('/api/posts',(req,res,next)=>{
+  const posts=[
+    {id: 'sdddddddds',title:'magic',post:'rabbit disappering'},
+    {id: 'sddddsdfds',title:'music',post:'stairway to ?'}
+  ];
+  // status:200 indicates successful transfer
+  res.status(200).json({
+    message: "Posts fetched",
+    posts:posts
+  });
 });
 
 // for exporting to server.js
