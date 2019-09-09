@@ -8,13 +8,12 @@
         Title: {{post.title}}
       </mat-panel-title>
       <mat-panel-description>
-        Click to {{panelOpenState ? 'close' : 'open'}}
       </mat-panel-description>
     </mat-expansion-panel-header>
     <p> {{post.post}}</p>
     <mat-action-row>
       <button mat-button color="primary">EDIT</button>
-      <button mat-button color="warn">DELETE</button>
+      <button mat-button color="warn" (click)="onDelete(post.id)">DELETE</button>
     </mat-action-row>
   </mat-expansion-panel>
 </mat-accordion>

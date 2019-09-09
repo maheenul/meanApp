@@ -1,7 +1,19 @@
 const express = require('express');
 const  bodyParser = require('body-parser');
 
+const Post = require('./models/post');
+const mongoose = require('mongoose');
+
 const app = express();
+
+mongoose.connect('mongodb+srv://mahi:iiidXxJXH0E0Spze@cluster0-8gaq9.mongodb.net/node-angular?retryWrites=true&w=majority')
+.then(()=>{
+  console.log('Connected to database');
+})
+.catch(()=>{
+  console.log('Connection failed');
+});
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false})); // not req for this project
@@ -18,29 +30,43 @@ app.use((req,res,next)=>{
   next();
 });
 
+//iiidXxJXH0E0Spze
 app.post("/api/posts",(req,res,next)=>{
-  const post = req.body;
-  console.log(post);
-  res.status(201).json({
-    message: "Post added successfully"
-  }); //means everything okat and new resource created
-                          //.json sends back a response data
+  const post = new Post({
+    title: req.body.title,
+    post: req.body.post
+  });
+  post.save().then(createdPost => {
+    res.status(201).json({
+      message: "Post added successfully",
+      postId: createdPost._id
+    });
+  });
 });
 
 app.use((req,res,next)=>{
-  console.log('1st middleware');
+  //console.log('1st middleware');
   next();
 });
 
-app.use('/api/posts',(req,res,next)=>{    // can use app.get here instead
-  const posts=[
-    {id: 'sdddddddds',title:'magic',post:'rabbit disappering'},
-    {id: 'sddddsdfds',title:'music',post:'stairway to ?'}
-  ];
-  // status:200 indicates successful transfer
-  res.status(200).json({
-    message: "Posts fetched",
-    posts:posts
+app.get('/api/posts',(req,res,next)=>{
+  Post.find().then(documents=>{
+    //res should be inside as Post.find is an ansynchronous task
+    // It takes time for Post.find to complete, if res is not inside
+    // res will be executed before Post.find is completed
+      res.status(200).json({
+        message: "Posts fetched",
+        posts:documents
+    });
+  });
+});
+
+
+
+app.delete("/api/posts/:id",(req,res,next)=>{
+  Post.deleteOne({_id: req.params.id}).then(result=>{
+    console.log(result);
+    res.status(200).json({message: 'Post deleted!'});
   });
 });
 
