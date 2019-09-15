@@ -1,15 +1,19 @@
-import {Post} from './post.model';
+import { Post } from './post.model';
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http'
 import { map } from 'rxjs/operators'
+import { Router } from '@angular/router';
 
 @Injectable({providedIn: 'root'})
 export class PostsService {
   private posts: Post[] = [];
   private postsUpdated = new Subject<Post[]>();
 
-  constructor(private http: HttpClient){}
+  constructor(
+    private http: HttpClient,
+    private router: Router
+    ){}
 
   getPosts(){
     // Unsubscrption handles automatically
@@ -20,7 +24,7 @@ export class PostsService {
       return postData.posts.map(post =>{
         return{
          title: post.title,
-         content: post.content,
+         post: post.post,
          id: post._id
         };
       });
@@ -36,6 +40,11 @@ export class PostsService {
     return this.postsUpdated.asObservable();
   }
 
+  getPost(id:string){
+    return this.http.get<{_id:string, title:string, post:string}>("http://localhost:3000/api/posts/"+id);
+  }
+
+
   addPost(title: string, post:string){
     const postMsg: Post = {id:null,title:title, post:post};
 
@@ -49,9 +58,24 @@ export class PostsService {
       // Push locally if server responds
       this.posts.push(postMsg)
       this.postsUpdated.next([...this.posts]);
+      this.router.navigate(['/']);
     });
   }
 
+  updatePost(id:string, title:string, post:string){
+    const postMsg:Post ={ id:id, title:title, post:post}
+    this.http.put("http://localhost:3000/api/posts/"+id,postMsg)
+    .subscribe(response => {
+      // updating locally
+      const updatedPosts = [...this.posts];
+      const oldPostIndex = updatedPosts.findIndex(p=> p.id===id);
+      updatedPosts[oldPostIndex] =postMsg;
+      this.posts = updatedPosts;
+      this.postsUpdated.next([...this.posts]);
+      this.router.navigate(['/']);
+    }
+    )
+  }
 
   deletePost(postId: string){
     this.http.delete('http://localhost:3000/api/posts/'+postId)
