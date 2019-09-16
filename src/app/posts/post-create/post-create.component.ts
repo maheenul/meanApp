@@ -1,5 +1,5 @@
 import { Component, OnInit} from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule,ReactiveFormsModule,FormGroup,Validator, FormControl, Validators } from '@angular/forms';
 import { PostsService } from '../post.service';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Post } from '../post.model';
@@ -22,14 +22,20 @@ export class PostCreateComponent implements OnInit {
  private postId = null;
  post: Post;
  isLoading = false;
-//  post: Post = {
-//    id:null,
-//   title:'',
-//   post:''
-//  };
+ form: FormGroup;
+ imagePreview: any;
 
 
   ngOnInit() {
+    this.form = new FormGroup({
+      'title':new FormControl(null, {
+        validators: [Validators.required, Validators.minLength(3)]
+      }),
+      'post': new FormControl(null, {
+        validators:[Validators.required]
+      }),
+      'image': new FormControl(null)
+    });
     this.route.paramMap.subscribe((paramMap:ParamMap)=>{
       if(paramMap.has('postId')){
         this.mode = 'edit';
@@ -40,10 +46,14 @@ export class PostCreateComponent implements OnInit {
         this.postsService.getPost(this.postId)
         .subscribe(postData=>{
           this.post = {id: postData._id, title:postData.title, post:postData.post}
-        // loading finished
-        this.isLoading  = false;
+          // loading finished
+          this.isLoading  = false;
+          this.form.setValue({
+          'title':this.post.title,
+          'post':this.post.post,
+          'image':null
+          })
         });
-        console.log(this.post);
       }else{
         // Create mode
       }
@@ -52,25 +62,38 @@ export class PostCreateComponent implements OnInit {
     );
   }
 
-  onSavePost(form: NgForm) {
-    if(form.invalid){
+  onImagePicked(event: Event){
+    const file = (event.target as HTMLInputElement).files[0];
+    this.form.patchValue({image:file});
+    this.form.get('image').updateValueAndValidity();
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      this.imagePreview = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  onSavePost() {
+    this.isLoading = true;
+    console.log(this.isLoading);
+    if(this.form.invalid){
       return;
     }else{
-      this.isLoading = true;
       if (this.mode==='create'){
-        this.postsService.addPost(form.value.newTitle,form.value.newPost);
-        this.isLoading = false;
+        this.postsService.addPost(this.form.value.title,this.form.value.post);
+
       }else{
         this.postsService.updatePost(
           this.postId,
-          form.value.newTitle,
-          form.value.newPost
+          this.form.value.title,
+          this.form.value.post
         )
-        this.isLoading = false;
       }
 
       // clears the previous inputs
-      form.resetForm();
+      //this.form.reset();
     }
+    console.log('stop');
+    this.isLoading = false;
   }
 }
