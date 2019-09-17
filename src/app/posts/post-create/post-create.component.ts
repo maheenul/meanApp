@@ -3,6 +3,7 @@ import { FormsModule,ReactiveFormsModule,FormGroup,Validator, FormControl, Valid
 import { PostsService } from '../post.service';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Post } from '../post.model';
+import { mimeType } from './mime-type.validator'
 
 @Component({
   selector: 'app-post-create',
@@ -34,7 +35,9 @@ export class PostCreateComponent implements OnInit {
       'post': new FormControl(null, {
         validators:[Validators.required]
       }),
-      'image': new FormControl(null)
+      'image': new FormControl(null,{
+        validators:[Validators.required], asyncValidators:[mimeType]
+      })
     });
     this.route.paramMap.subscribe((paramMap:ParamMap)=>{
       if(paramMap.has('postId')){
@@ -67,16 +70,18 @@ export class PostCreateComponent implements OnInit {
     this.form.patchValue({image:file});
     this.form.get('image').updateValueAndValidity();
     const reader = new FileReader();
+    reader.readAsDataURL(file);
     reader.onload = ()=>{
       this.imagePreview = reader.result;
     };
-    reader.readAsDataURL(file);
+
   }
 
   onSavePost() {
     this.isLoading = true;
     console.log(this.isLoading);
     if(this.form.invalid){
+      this.isLoading = false;
       return;
     }else{
       if (this.mode==='create'){
