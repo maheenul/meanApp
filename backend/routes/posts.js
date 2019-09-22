@@ -76,7 +76,16 @@ router.put("/:id",multer({storage:storage}).single("image"),
 });
 
 router.get('',(req,res,next)=>{
-  Post.find().then(documents=>{
+  const pageSize = +req.query.pagesize; // '+' added to convert string to numbers
+  const currentPage = +req.query.page;
+  const postQuery = Post.find();
+
+  if(pageSize && currentPage){
+    postQuery
+    .skip(pageSize * (currentPage-1))
+    .limit(pageSize);
+  }
+  postQuery.then(documents=>{
     //res should be inside as Post.find is an ansynchronous task
     // It takes time for Post.find to complete, if res is not inside
     // res will be executed before Post.find is completed
