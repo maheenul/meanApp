@@ -25,7 +25,8 @@ export class PostsService {
         return{
          title: post.title,
          post: post.post,
-         id: post._id
+         id: post._id,
+         imagePath:post.imagePath
         };
       });
     }))
@@ -41,20 +42,29 @@ export class PostsService {
   }
 
   getPost(id:string){
-    return this.http.get<{_id:string, title:string, post:string}>("http://localhost:3000/api/posts/"+id);
+    return this.http.get
+    <{_id:string, title:string, post:string, imagePath:string}>
+    ("http://localhost:3000/api/posts/"+id);
   }
 
 
-  addPost(title: string, post:string){
-    const postMsg: Post = {id:null,title:title, post:post};
+  addPost(title: string, post:string, image:File){
+    // const postMsg: Post = {id:null,title:title, post:post};
+    const postData = new FormData();
 
-    this.http.post<{message:string, postId:string}>('http://localhost:3000/api/posts',postMsg)
+    postData.append("title",title);
+    postData.append("post",post);
+    postData.append("image",image, title);
+
+
+    this.http.post<{message:string, post:Post}>
+  ('http://localhost:3000/api/posts',postData)
     .subscribe((responseData)=>{
       console.log(responseData.message);
 
+      const postMsg: Post = responseData.post;
+
       // fethces unique id
-      const id = responseData.postId;
-      postMsg.id = id;
       // Push locally if server responds
       this.posts.push(postMsg)
       this.postsUpdated.next([...this.posts]);
@@ -62,13 +72,35 @@ export class PostsService {
     });
   }
 
-  updatePost(id:string, title:string, post:string){
-    const postMsg:Post ={ id:id, title:title, post:post}
-    this.http.put("http://localhost:3000/api/posts/"+id,postMsg)
+  updatePost(id:string, title:string, post:string, image:File|string){
+    let postData: Post | FormData;
+    if (typeof(image)==='object'){
+      postData = new FormData();
+      postData.append("id",id);
+      postData.append("title",title);
+      postData.append("post",post);
+      postData.append("image",image,title)
+    }else{
+      postData =
+      { id:id,
+        title:title,
+        post:post,
+        imagePath:image
+      };
+    }
+
+
+    this.http.put("http://localhost:3000/api/posts/"+id,postData)
     .subscribe(response => {
       // updating locally
       const updatedPosts = [...this.posts];
       const oldPostIndex = updatedPosts.findIndex(p=> p.id===id);
+      const postMsg:Post = {
+        title: title,
+        post: post,
+        id: id,
+        imagePath:""//response.imagepath
+       }
       updatedPosts[oldPostIndex] =postMsg;
       this.posts = updatedPosts;
       this.postsUpdated.next([...this.posts]);

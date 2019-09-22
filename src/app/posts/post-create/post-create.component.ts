@@ -48,13 +48,19 @@ export class PostCreateComponent implements OnInit {
         this.isLoading = true;
         this.postsService.getPost(this.postId)
         .subscribe(postData=>{
-          this.post = {id: postData._id, title:postData.title, post:postData.post}
+          this.post =
+          {
+            id: postData._id,
+            title:postData.title,
+            post:postData.post,
+            imagePath:postData.imagePath
+          }
           // loading finished
           this.isLoading  = false;
           this.form.setValue({
           'title':this.post.title,
           'post':this.post.post,
-          'image':null
+          'image':this.post.imagePath
           })
         });
       }else{
@@ -85,13 +91,14 @@ export class PostCreateComponent implements OnInit {
       return;
     }else{
       if (this.mode==='create'){
-        this.postsService.addPost(this.form.value.title,this.form.value.post);
+        this.postsService.addPost(this.form.value.title,this.form.value.post,this.form.value.image);
 
       }else{
         this.postsService.updatePost(
           this.postId,
           this.form.value.title,
-          this.form.value.post
+          this.form.value.post,
+          this.form.value.image
         )
       }
 
