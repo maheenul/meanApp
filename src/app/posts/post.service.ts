@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 @Injectable({providedIn: 'root'})
 export class PostsService {
   private posts: Post[] = [];
-  private postsUpdated = new Subject<Post[]>();
+  private postsUpdated = new Subject<{posts: Post[], postCount:number}>();
 
   constructor(
     private http: HttpClient,
@@ -18,23 +18,31 @@ export class PostsService {
   getPosts(postsPerPage:number,currentPage:number){
     const queryParams = `?pagesize=${postsPerPage}&page=${currentPage}`
     // Unsubscrption handles automatically
-    this.http.get<{message: string, posts: any}>(
+    this.http.get<{message: string, posts: any, maxPosts:number}>(
       'http://localhost:3000/api/posts'+queryParams
       )
-    .pipe(map((postData)=>{
-      return postData.posts.map(post =>{
-        return{
-         title: post.title,
-         post: post.post,
-         id: post._id,
-         imagePath:post.imagePath
-        };
-      });
+    .pipe(map(postData=>{
+      return {
+        posts: postData.posts.map(post =>{
+          return{
+            title: post.title,
+            post: post.post,
+            id: post._id,
+            imagePath:post.imagePath
+          };
+        }),
+        maxPosts: postData.maxPosts
+      };
     }))
-    .subscribe(transformedPosts=>{
-      this.posts = transformedPosts;
+    .subscribe(transformedPostsData=>{
+      this.posts = transformedPostsData.posts;
       // No need  to duplicate with ...this as data is coming from server
-      this.postsUpdated.next([...this.posts]);
+      this.postsUpdated.next(
+        {
+          posts: [...this.posts],
+          postCount:transformedPostsData.maxPosts
+        }
+      );
     });
   }
 
@@ -61,14 +69,7 @@ export class PostsService {
     this.http.post<{message:string, post:Post}>
   ('http://localhost:3000/api/posts',postData)
     .subscribe((responseData)=>{
-      console.log(responseData.message);
-
-      const postMsg: Post = responseData.post;
-
-      // fethces unique id
-      // Push locally if server responds
-      this.posts.push(postMsg)
-      this.postsUpdated.next([...this.posts]);
+      // pushing locally removed
       this.router.navigate(['/']);
     });
   }
@@ -93,29 +94,13 @@ export class PostsService {
 
     this.http.put("http://localhost:3000/api/posts/"+id,postData)
     .subscribe(response => {
-      // updating locally
-      const updatedPosts = [...this.posts];
-      const oldPostIndex = updatedPosts.findIndex(p=> p.id===id);
-      const postMsg:Post = {
-        title: title,
-        post: post,
-        id: id,
-        imagePath:""//response.imagepath
-       }
-      updatedPosts[oldPostIndex] =postMsg;
-      this.posts = updatedPosts;
-      this.postsUpdated.next([...this.posts]);
+      // updating locally removed (redundant)
       this.router.navigate(['/']);
     }
     )
   }
 
   deletePost(postId: string){
-    this.http.delete('http://localhost:3000/api/posts/'+postId)
-    .subscribe(()=>{
-      const updatedPosts = this.posts.filter(post=>post.id!==postId);
-      this.posts=updatedPosts;
-      this.postsUpdated.next([...this.posts]);
-    });
+    return this.http.delete('http://localhost:3000/api/posts/'+postId)
   }
 }

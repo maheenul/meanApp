@@ -79,19 +79,30 @@ router.get('',(req,res,next)=>{
   const pageSize = +req.query.pagesize; // '+' added to convert string to numbers
   const currentPage = +req.query.page;
   const postQuery = Post.find();
+  let fetchedPosts;
 
   if(pageSize && currentPage){
     postQuery
     .skip(pageSize * (currentPage-1))
     .limit(pageSize);
   }
-  postQuery.then(documents=>{
+
+  postQuery
+  .then(documents=>{
+    fetchedPosts=documents;
+    return Post.count();
+    // The above line is probably chained as the process is an
+    // async task. the second then block executes only after this
+    // one has finished.
+  })
+  .then(count=>{
     //res should be inside as Post.find is an ansynchronous task
     // It takes time for Post.find to complete, if res is not inside
     // res will be executed before Post.find is completed
       res.status(200).json({
         message: "Posts fetched",
-        posts:documents
+        posts:fetchedPosts,
+        maxPosts:count
     });
   });
 });
