@@ -1,7 +1,7 @@
 <mat-spinner *ngIf="isLoading"></mat-spinner>
 <mat-accordion *ngIf="!isLoading">
   <mat-expansion-panel
-  *ngFor="let post  of posts"
+  *ngFor="let post of posts"
   (opened)="panelOpenState = true"
   (closed)="panelOpenState = false">
     <mat-expansion-panel-header>
