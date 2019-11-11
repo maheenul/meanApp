@@ -10,9 +10,9 @@ const userRoutes = require("./routes/user")
 
 const app = express();
 
-//mongoose.connect('mongodb+srv://mahi:iiidXxJXH0E0Spze@cluster0-8gaq9.mongodb.net/node-angular?retryWrites=true&w=majority')
+mongoose.connect('mongodb+srv://mahi:iiidXxJXH0E0Spze@cluster0-8gaq9.mongodb.net/node-angular?retryWrites=true&w=majority')
 
-mongoose.connect('mongodb://localhost:27017/mean', {useNewUrlParser: true})
+//mongoose.connect('mongodb://localhost:27017/mean', {useNewUrlParser: true})
 .then(()=>{
   console.log('Connected to database');
 })
@@ -29,7 +29,7 @@ app.use("/images",express.static(path.join("backend/images"))); //for allowing a
 app.use((req,res,next)=>{
   res.setHeader("Access-Control-Allow-Origin","*");
   res.setHeader("Access-Control-Allow-Headers",
-  "Origin, X-Requested-With, Content-Type, Accept"
+  "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
   res.setHeader("Access-Control-Allow-Methods",
   "GET,PUT, POST, PATCH, DELETE, OPTIONS"
