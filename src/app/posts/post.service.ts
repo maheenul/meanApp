@@ -28,13 +28,15 @@ export class PostsService {
             title: post.title,
             post: post.post,
             id: post._id,
-            imagePath:post.imagePath
+            imagePath:post.imagePath,
+            creator:post.creator
           };
         }),
         maxPosts: postData.maxPosts
       };
     }))
     .subscribe(transformedPostsData=>{
+      console.log(transformedPostsData);
       this.posts = transformedPostsData.posts;
       // No need  to duplicate with ...this as data is coming from server
       this.postsUpdated.next(
